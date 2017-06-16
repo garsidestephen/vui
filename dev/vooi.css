@@ -12,7 +12,7 @@
 .vui-btn:hover { -moz-transition: all 1s; -o-transition: all 1s; -webkit-transition: all 1s; transition: all 1s; }
 .vui-cta--information { display: none; }
 
-.vui-cta--description { text-transform: capitalize; font-size: 20px; }
+.vui-cta--description { text-transform: capitalize; font-size: 20px; padding:0 10px; }
 .vui-cta--brand,
 #vui-information--wakeword,
 #vui-information--sleepword { font-weight: bold; text-transform: uppercase; }
@@ -53,6 +53,8 @@
 #vui-results { font-weight: normal; display: block; margin: 0; }
 .vui-instruction { font-weight: bold; }
 .vui-arrow-left { position: absolute; top: 50%; left: -4px; margin-top: -10px; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right-width: 10px; border-right-style: solid; }
+
+.vui-not-recognising { opacity:0.5; }
 
 
 /* Themes ---------------------------- */

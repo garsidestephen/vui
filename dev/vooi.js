@@ -25,6 +25,7 @@ var vooi = (function ()
         $vuiSpeech = null,
         $vuiEqualizer = null,
         $vuiResults = null,
+        $vuiMicWrap = null,
         $siteSearchField = null,
         $siteSearchForm = null,
         currentPageUrlPath = window.location.href.replace(window.location.origin, ""),
@@ -106,38 +107,6 @@ var vooi = (function ()
         abortRecognition();
     }
 
-    function initCallback()
-    {
-        if (isBrowserSpeechRecognitionEnabled === true && isVuiEnabled === false && isVuiDismissed === false)
-        {
-            // Browser is capable of speech recog but the user has not enabled it or dismissed the CTA
-            setParameters(params);
-            setTheme();
-
-            primeVuiCTA();
-        }
-        else if (isBrowserSpeechRecognitionEnabled === true && isVuiEnabled === true)
-        {
-            // Browser is capable of speech recog and user has enabled it
-            setParameters(params);
-            setTheme();
-
-            fadeInVuiControls();
-
-            if (getCookie(cookieNameVuiAwake) == 'true')
-            {
-                // Put straight into Awake mode
-                startAwakeMode();
-            }
-            else
-            {
-                isAsleep = true;
-            }
-
-            startVui();
-        }
-    }
-
     ///
     /// Start VUI
     ///
@@ -161,7 +130,6 @@ var vooi = (function ()
         // Only show Vui CTA if it is not already enabled and it has not been dismissed in last X days?
         if (isVuiEnabled === false && isVuiDismissed === false)
         {
-            initVuiCTAKeyboardEvents();
             $vuiControls.hide();
             $vuiCta.fadeIn();
         }
@@ -261,9 +229,9 @@ var vooi = (function ()
     }
 
     ///
-    /// Init Vui CTA Keyboard Events
+    /// Init Vui Keyboard Events
     ///
-    function initVuiCTAKeyboardEvents()
+    function initVuiKeyboardEvents()
     {
         // User clicked to hide VUI CTA
         $('#vui-not-now').on('click', function ()
@@ -285,7 +253,20 @@ var vooi = (function ()
         {
             $vuiMoreInfo.slideToggle();
         });
+
+        // User has clicked on Vooi Mic
+        $vuiMicWrap.on('click', function ()
+        {
+            if (confirm('Do you want to close Vooi?'))
+            {
+                dismissVuiCTAForNow();
+                $vuiControls.fadeOut();
+                stop();
+            }
+        });
     }
+
+
 
     ///
     /// Enable Vui
@@ -307,6 +288,7 @@ var vooi = (function ()
     function dismissVuiCTAForNow()
     {
         setCookie(cookieNameVuiDismissed, true, configurableParams.vuiCTADismissalPeriodInDays);
+        deleteCookie(cookieNameVuiEnabled);
         fadeOutVuiCTA();
     }
 
@@ -361,6 +343,7 @@ var vooi = (function ()
     function recognitionStarted()
     {
         isRecognising = true;
+        $vuiMicWrap.removeClass('vui-not-recognising');
     }
 
     ///
@@ -371,6 +354,8 @@ var vooi = (function ()
         log('recognitionEnded');
 
         isRecognising = false;
+
+        $vuiMicWrap.addClass('vui-not-recognising');
 
         if (isEnabled === true && isPaused === false)
         {
@@ -675,11 +660,11 @@ var vooi = (function ()
         {
             if (scrollDown == true)
             {
-                gotoScrollTop = currentScrollTop + (screenHeight / 2);
+                gotoScrollTop = currentScrollTop + (screenHeight * 0.8);
             }
             else
             {
-                gotoScrollTop = currentScrollTop - (screenHeight / 2);
+                gotoScrollTop = currentScrollTop - (screenHeight * 0.8);
 
                 if (gotoScrollTop < 0)
                 {
@@ -872,17 +857,19 @@ var vooi = (function ()
     {
         var $allLinks = $('a'),
             $allBtns = $('button'),
+            $allData = $('[data-vui-text]'),
             counter = 0;
 
         if ($allLinks.length > 0)
         {
             $allLinks.each(function ()
             {
-                var $ele = $(this);
+                var $ele = $(this),
+                    eleText = $ele.text();
 
-                counter += 1;
+                counter += 1;                
 
-                addAutoEnabledAction($ele.text(), counter, $ele);
+                addAutoEnabledAction(eleText, counter, $ele);
             });
         }
 
@@ -895,6 +882,20 @@ var vooi = (function ()
                 counter += 1;
 
                 addAutoEnabledAction($ele.text(), counter, $ele);
+            });
+        }
+
+        // NB if an element has text and vui-text, vui-text will trump
+        if ($allData.length > 0)
+        {
+            $allData.each(function ()
+            {
+                var $ele = $(this),
+                    eleText = $ele.data('vui-text');
+
+                counter += 1;
+
+                addAutoEnabledAction(eleText, counter, $ele);
             });
         }
     }
@@ -984,8 +985,11 @@ var vooi = (function ()
             $vuiSpeech = $('#vui-controls .vui-speech-wrap');
             $vuiEqualizer = $('#vui-controls .vui-equalizer');
             $vuiResults = $('#vui-results');
+            $vuiMicWrap = $('.vui-mic-wrap');
 
-            if(callbackFn)
+            initVuiKeyboardEvents();
+
+            if (callbackFn)
             {
                 callbackFn();
             }
