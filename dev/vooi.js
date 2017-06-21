@@ -1,4 +1,6 @@
-﻿// Vooi - www.stephengarside.co.uk
+// Add ability to add comma delimted list of phrases to data-vui-text
+
+// Vooi - www.stephengarside.co.uk
 
 var vooi = (function ()
 {
@@ -818,8 +820,8 @@ var vooi = (function ()
         if (event.error == "not-allowed")
         {
             stop();
-            deleteCookie(cookieNameVuiEnabled);
-            setCookie(cookieNameMicBlocked, true, 365);
+            //deleteCookie(cookieNameVuiEnabled);
+            //setCookie(cookieNameMicBlocked, true, 365);
         }
     }
 
@@ -909,6 +911,10 @@ var vooi = (function ()
         {
             var className = 'vui-ae-' + id;
             $ele.addClass(className);
+
+
+            // Build Phrases here then add in, split text by pipe
+            // Consider checking for starts with click, go to etc and not adding it twice
 
             configurableParams.actions.push({ "contexturl": currentPageUrlPath, "type": "click", "phrases": [text, "go to " + text, "goto " + text, "click " + text], "intent": '.' + className, "accuracypercentage": configurableParams.accuracyPercentage });
         }
