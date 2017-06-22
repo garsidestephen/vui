@@ -1013,6 +1013,9 @@ var vooi = (function ()
 
             initVuiKeyboardEvents();
 
+            // Add a tooltip
+            $vuiControls.attr("title", "Vooi - Voice Control for websites. Say '" + configurableParams.wakeWord + "' to wake me up, or '" + configurableParams.sleepWord + "' to make me sleep");
+
             if (callbackFn)
             {
                 callbackFn();
