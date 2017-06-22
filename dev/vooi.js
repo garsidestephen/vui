@@ -1,5 +1,3 @@
-// Add ability to add comma delimted list of phrases to data-vui-text
-
 // Vooi - www.stephengarside.co.uk
 
 var vooi = (function ()
@@ -859,7 +857,7 @@ var vooi = (function ()
     {
         var $allLinks = $('a'),
             $allBtns = $('button'),
-            $allData = $('[data-vui-text]'),
+            $allData = $('[data-vui-phrases]'),
             counter = 0;
 
         if ($allLinks.length > 0)
@@ -869,7 +867,7 @@ var vooi = (function ()
                 var $ele = $(this),
                     eleText = $ele.text();
 
-                counter += 1;                
+                counter += 1;
 
                 addAutoEnabledAction(eleText, counter, $ele);
             });
@@ -887,13 +885,13 @@ var vooi = (function ()
             });
         }
 
-        // NB if an element has text and vui-text, vui-text will trump
+        // NB if an element has text and vui-phrases, vui-phrases will trump
         if ($allData.length > 0)
         {
             $allData.each(function ()
             {
                 var $ele = $(this),
-                    eleText = $ele.data('vui-text');
+                    eleText = $ele.data('vui-phrases');
 
                 counter += 1;
 
@@ -909,14 +907,34 @@ var vooi = (function ()
     {
         if (text != '' && id > 0 && $ele)
         {
-            var className = 'vui-ae-' + id;
+            var className = 'vui-ae-' + id,
+                phrases = text.split('|'),
+                phraseVariations = [];
+
             $ele.addClass(className);
 
 
-            // Build Phrases here then add in, split text by pipe
-            // Consider checking for starts with click, go to etc and not adding it twice
+            // Build Phrase Variations
+            for (var i = 0; i < phrases.length; i++)
+            {
+                var phrase = phrases[i];
 
-            configurableParams.actions.push({ "contexturl": currentPageUrlPath, "type": "click", "phrases": [text, "go to " + text, "goto " + text, "click " + text], "intent": '.' + className, "accuracypercentage": configurableParams.accuracyPercentage });
+                if (phraseVariations.indexOf(phrase) == -1)
+                {
+                    if (phrase.startsWith("go to ") || phrase.startsWith("goto ") || phrase.startsWith("click "))
+                    {
+                        phraseVariations.push(phrase);
+                    }
+                    else
+                    {
+                        phraseVariations.push("go to " + phrase);
+                        phraseVariations.push("goto " + phrase);
+                        phraseVariations.push("click " + phrase);
+                    }
+                }
+            }
+
+            configurableParams.actions.push({ "contexturl": currentPageUrlPath, "type": "click", "phrases": phraseVariations, "intent": '.' + className, "accuracypercentage": configurableParams.accuracyPercentage });
         }
     }
 
