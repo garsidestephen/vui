@@ -1,3 +1,4 @@
+// Only recog nising those with 'click menu' bah!!!
 // Vooi - www.stephengarside.co.uk
 
 var vooi = (function ()
@@ -489,7 +490,8 @@ var vooi = (function ()
                     var potentialActions = [],
                         transcriptWords = transcript.split(' '),
                         indexOfHighestAccuracyAction = -1,
-                        accuracyScoreboard = [];
+                        accuracyScoreboard = [],
+                        transcriptSpaceReplaced = transcript.replace(" ", "");
 
                     // Loop through each action applicable to the current context
                     for (var i = 0 ; i < contextActions.length; i++)
@@ -523,6 +525,14 @@ var vooi = (function ()
                                         percScoreForThisPhrase = percScoreForThisPhrase + percScorePerWord;
                                         currentPhraseWords.splice(indexOfWordInCurrentPhrasewordsArray);
                                     }
+                                }
+
+                                // Remove all spaces and make another comparison just to be sure
+                                var currentPhraseSpaceReplaced = currentPhrase.replace(" ", "");
+
+                                if (currentPhraseSpaceReplaced === transcriptSpaceReplaced)
+                                {
+                                    percScoreForThisPhrase = 100;
                                 }
 
                                 // Check if the score for this phrase is the highest in this action
@@ -907,12 +917,13 @@ var vooi = (function ()
     {
         if (text != '' && id > 0 && $ele)
         {
+            text = text.trim();
+
             var className = 'vui-ae-' + id,
                 phrases = text.split('|'),
                 phraseVariations = [];
 
             $ele.addClass(className);
-
 
             // Build Phrase Variations
             for (var i = 0; i < phrases.length; i++)
@@ -921,16 +932,11 @@ var vooi = (function ()
 
                 if (phraseVariations.indexOf(phrase) == -1)
                 {
-                    if (phrase.startsWith("go to ") || phrase.startsWith("goto ") || phrase.startsWith("click "))
-                    {
-                        phraseVariations.push(phrase);
-                    }
-                    else
-                    {
-                        phraseVariations.push("go to " + phrase);
-                        phraseVariations.push("goto " + phrase);
-                        phraseVariations.push("click " + phrase);
-                    }
+                    phraseVariations.push(phrase);
+
+                    if (!phrase.startsWith("go to ")) { phraseVariations.push("go to " + phrase); }
+                    if (!phrase.startsWith("goto ")) { phraseVariations.push("goto " + phrase); }
+                    if (!phrase.startsWith("click ")) { phraseVariations.push("click " + phrase); }
                 }
             }
 
